@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Inference for model-agnostic variable importance</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Brian D. Williamson, PhD   Fred Hutchinson Cancer Research Center" />
+    <link href="index_files/tile-view-0.2.3.9000/tile-view.css" rel="stylesheet" />
+    <script src="index_files/tile-view-0.2.3.9000/tile-view.js"></script>
+    <link href="index_files/font-awesome-5.3.1/css/fontawesome-all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, title-slide
+
+# Inference for model-agnostic variable importance
+### Brian D. Williamson, PhD<br> <span style="font-size: 75%;"> Fred Hutchinson Cancer Research Center </span>
+### 4 May, 2021<br> <a href = 'https://bdwilliamson.github.io/#talks' style = 'color: white;'>https://bdwilliamson.github.io/#talks</a>
+
+---
+
+
+
+
+&lt;style type="text/css"&gt;
+.remark-slide-content {
+    font-size: 20px;
+    header-h2-font-size: 1.75rem;
+}
+&lt;/style&gt;
+
+## Research team
+
+This work was done in collaboration with:
+&lt;img src="img/people1.PNG" width="65%" style="display: block; margin: auto;" /&gt;
+&lt;img src="img/people2.PNG" width="55%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Motivation: HIV envelope and antibody targets
+
+&lt;img src="img/hiv_env.png" width="90%" style="display: block; margin: auto;" /&gt;
+
+.small[Source: Koff and Berkley (2010)]
+
+---
+
+## Motivation: AMP
+
+AMP overall objective: assess .blue2[VRC01] .blue1[prevention efficacy] (PE) against HIV-1
+
+* &amp;zwj;VRC01: broadly neutralizing antibody (bnAb) isolated from donor
+
+--
+
+Key secondary question:
+
+.green[Which genetic mutations] make HIV-1 .purple[susceptible] to neutralization?
+
+--
+
+&amp;zwj;Challenges:
+* How should we measure susceptibility?
+--
+
+* How do we determine if a mutation has a real effect?
+--
+
+ at .red[many] positions?
+--
+
+* Can we use .mutedred[machine learning]?
+
+---
+
+## Variable importance: what and why
+
+**What is variable importance?**
+* .blue1[Quantification of "contributions" of a variable] (or a set of variables)
+
+--
+
+  Traditionally: contribution to .blue2[predictions]
+--
+
+* Useful to distinguish between contributions of predictions...
+--
+
+  * (.blue1[extrinsic importance]) ... .blue1[by a given (possibly black-box) algorithm]
+  .small[ [e.g., Breiman, (2001)] ]
+--
+
+  * (.blue1[intrinsic importance]) ... .blue1[by best possible (i.e., oracle) algorithm]
+  .small[ [e.g., van der Laan (2006)] ]
+--
+
+* Our work focuses on .blue1[interpretable, model-agnostic intrinsic importance]
+
+--
+
+Example uses of .blue2[intrinsic] variable importance:
+* is it worth extracting text from notes in the EHR for the sake of predicting hospital readmission?
+
+--
+
+* is it worth collecting a given covariate for the sake of predicting neutralization sensitivity?
+
+
+---
+
+## Case study: ANOVA importance
+
+Data unit `\((X, Y)\)` with:
+* outcome `\(Y\)` 
+* covariate `\(X := (X_1, X_2, \ldots, X_p)\)`
+
+--
+
+**Goals:** 
+* .green[estimate]
+* .blue1[and do inference on]
+
+the importance of `\((X_j: j \in s)\)` in predicting `\(Y\)`
+
+--
+
+How do we typically do this in **linear regression**?
+
+---
+
+## Case study: ANOVA importance
+
+How do we typically do this in **linear regression**?
+
+* Fit a linear regression of `\(Y\)` on `\(X\)` `\(\rightarrow \color{magenta}{\hat{\mu}(X)}\)`
+--
+
+* Fit a linear regression of `\(Y\)` on `\(X_{-s}\)` `\(\rightarrow \color{magenta}{\hat{\mu}_s(X)}\)`
+--
+
+* .green[Compare the fitted values] `\([\hat{\mu}(X_i), \hat{\mu}_s(X_i)]\)`
+
+--
+
+Many ways to compare fitted values, including:
+* ANOVA decomposition
+* Difference in `\(R^2\)`
+
+--
+
+Can extend this to a .blue1[nonparametric] measure using .blue2[population quantities] 
+
+---
+
+## Case study: ANOVA importance
+
+How should we make inference on population importance?
+--
+
+1. construct regression estimators (e.g., with machine learning)
+--
+
+2. compute simple, initial estimator 
+--
+  ...but this estimator has .red[asymptotic bias]
+--
+
+3. use influence function-based debiasing [e.g., Pfanzagl (1982)] to obtain corrected estimator 
+
+--
+
+**Key observation:** estimator from (3) arises from steps 1 and 2 with a different parameter of interest
+
+This implies .blue1[no need for debiasing]! .small[[Details in Williamson et al. (2020a)]]
+
+---
+
+## Generalization to arbitrary measures
+
+ANOVA example suggests a natural generalization:
+--
+
+1. Choose a relevant measure of .blue1[predictiveness] `\(V\)` for the task at hand
+
+--
+  * e.g., classification accuracy, AUC, `\(R^2\)`
+
+--
+
+2. Define variable importance as $$V( \text{best possible prediction function using all variables}) - $$ `$$V(\text{best possible prediction function excluding the variables of interest})$$`
+
+--
+
+Inference possible even with machine learning! .small[ [Details in Williamson et al. (2020b)] ]
+
+---
+
+## Preparing for AMP
+
+&lt;img src="img/vim_ic50.censored_pres_r2_acc_auc_conditional_simple.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+&amp;zwj;Implications:
+
+* All sites in the VRC01 binding footprint, CD4 binding sites appear important
+
+* Results may differ based on chosen measure
+
+.small[ _Data sourced from the CATNAP database (Yoon et al., 2015)_ ]
+
+
+---
+
+## Extensions and future work
+
+Handling potentially correlated features: 
+
+&lt;img src="img/spvim.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+Assessing neutralization potential of combination bnAb regimens: 
+
+&lt;img src="img/slapnap.png" width="50%" style="display: block; margin: auto;" /&gt;
+
+Variable selection using population importance: my postdoctoral focus
+
+---
+
+## Transition to EDI work
+
+Placeholder text about how I want to make the academic space more welcoming, equitable, inclusive
+
+How I've focused on outreach while at the Hutch
+
+---
+
+## HU + SCC MESA Partnership
+
+&lt;img src="img/hu-mesa.png" width="100%" style="display: block; margin: auto;" /&gt;
+
+.small[ _Images courtesy of Stephanie Shadbolt_ ]
+---
+
+## 2021 FH / SCC virtual internships
+
+&lt;img src="img/people3.png" width="85%" style="display: block; margin: auto;" /&gt;
+
+--
+
+&lt;img src="img/internship_timeline1.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## 2021 FH / SCC virtual internships
+
+&lt;img src="img/people3.png" width="85%" style="display: block; margin: auto;" /&gt;
+
+&lt;img src="img/internship_timeline2.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## 2021 FH / SCC virtual internships
+
+&lt;img src="img/people3.png" width="85%" style="display: block; margin: auto;" /&gt;
+
+&lt;img src="img/internship_timeline3.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## 2021 FH / SCC virtual internships
+
+&lt;img src="img/people3.png" width="85%" style="display: block; margin: auto;" /&gt;
+
+&lt;img src="img/internship_timeline4.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## 2021 FH / SCC virtual internships
+
+&lt;img src="img/people3.png" width="85%" style="display: block; margin: auto;" /&gt;
+
+&lt;img src="img/internship_timeline5.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## 2021 FH / SCC virtual internships
+
+&lt;img src="img/people3.png" width="85%" style="display: block; margin: auto;" /&gt;
+
+&lt;img src="img/internship_timeline6.png" width="70%" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Internship projects
+
+&lt;img src="img/people4.png" width="55%" style="display: block; margin: auto;" /&gt;
+
+&amp;zwj;**Lucy:** developing .blue1[clinical trial protocols] for National Cancer Institute-funded clinical trials in .green[rare neuroendocrine tumors]. 
+
+&amp;zwj;**Drew:** developing .blue1[guidelines] for using .blue2[machine learning] to do .blue2[variable screening] in risk-prediction analyses (e.g., cancer risk, COVID-19 risk, HIV-1 risk). 
+
+---
+
+## Closing thoughts
+
+.blue1[EDI work] can (and should) be .blue2[part of research]
+
+A .green[strong community partner] (e.g., SCC) is crucial for this work
+
+Many aspects needed for successful outreach: 
+* positions (requires scientific staff as sponsors)
+* administrative support (many thanks to Jill Anderson, Tess Hurley, and Scientific Computing)
+* long-term commitment (many thanks to Stephanie Shadbolt and Marilyn Saavedra-Leyva)
+
+.center[
+<i class="fab  fa-github "></i> https://github.com/bdwilliamson | 
+<i class="fas  fa-globe "></i> https://bdwilliamson.github.io
+]
+---
+
+## References
+
+* .small[ Benkeser, DC, Williamson BD, Magaret CA, Nizam S, and Gilbert PB. 2020. Super LeArner Prediction of NAb Panels (SLAPNAP): A Containerized Tool for Predicting Combination Monoclonal Broadly Neutralizing Antibody Sensitivity. _BioRxiv technical report_.]
+* .small[ Breiman, L. 2001. Random forests. _Machine Learning_.]
+* .small[ Koff, WC and Berkley, SF. 2010. The Renaissance in HIV vaccine development -- Future Directions. _The New England Journal of Medicine_  ]
+* .small[ van der Laan, MJ. 2006. Statistical inference for variable importance. _The International Journal of Biostatistics_.]
+
+---
+
+## References
+
+* .small[ Williamson B, Gilbert P, Carone M, and Simon N. 2020a. Nonparametric variable importance assessment using machine learning techniques (+ rejoinder to discussion). _Biometrics_. ]
+* .small[ Williamson B, Gilbert P, Simon N, and Carone M. 2020b. A unified approach for inference on algorithm-agnostic variable importance. _ArXiv technical report_. ]
+* .small[ Williamson B and Feng J. 2020. Efficient nonparametric statistical inference on population feature importance using Shapley values. _ICML_. ]
+* .small[ Yoon H, Macke J, West AP, et al. 2015. CATNAP: a tool to compile, analyze and tally neutralizing antibody panels. _Nucleic Acids Research_. ]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "tomorrow-night-blue",
+"highlightLanguage": "rmarkdown",
+"highlightLines": false,
+"slideNumberFormat": "%current%",
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

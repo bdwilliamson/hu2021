@@ -143,21 +143,33 @@ Example uses of .blue2[intrinsic] variable importance:
 
 ## Case study: ANOVA importance
 
-Data unit $(X, Y)$ with:
-* outcome $Y$ 
-* covariate $X := (X_1, X_2, \ldots, X_p)$
+```{r vim-1, echo = FALSE, out.width = "90%", fig.align = "center"}
+knitr::include_graphics("img/vim1.png")
+```
 
---
+---
 
-**Goals:** 
-* .green[estimate]
-* .blue1[and do inference on]
+## Case study: ANOVA importance
 
-the importance of $(X_j: j \in s)$ in predicting $Y$
+```{r vim-2, echo = FALSE, out.width = "90%", fig.align = "center"}
+knitr::include_graphics("img/vim2.png")
+```
 
---
+---
 
-How do we typically do this in **linear regression**?
+## Case study: ANOVA importance
+
+```{r vim-3, echo = FALSE, out.width = "90%", fig.align = "center"}
+knitr::include_graphics("img/vim3.png")
+```
+
+---
+
+## Case study: ANOVA importance
+
+```{r vim-4, echo = FALSE, out.width = "90%", fig.align = "center"}
+knitr::include_graphics("img/vim4.png")
+```
 
 ---
 
@@ -165,56 +177,83 @@ How do we typically do this in **linear regression**?
 
 How do we typically do this in **linear regression**?
 
-* Fit a linear regression of $Y$ on $X$ $\rightarrow \color{magenta}{\hat{\mu}(X)}$
+```{r lm-1, echo = FALSE, message = FALSE, out.width = "90%", fig.align = "center"}
+set.seed(1234)
+sim_x <- MASS::mvrnorm(n = 500, mu = rep(0, 10), Sigma = diag(1, nrow = 10, ncol = 10))
+sim_y <- rnorm(500, 1 + sin((pi / 2) * sim_x[, 1]) + cos((pi / 2) * sim_x[, 2]) + 0.01 * (1 - sim_x[, 3])^(-1), 1)
+library("tidyverse")
+sim_tib <- tibble(y = sim_y, data.frame(sim_x))
+lm_fit <- lm(y ~ ., data = sim_tib)
+library("cowplot")
+theme_set(theme_cowplot())
+plot_dat <- sim_tib %>% 
+  ggplot(aes(x = X1, y = y)) +
+  geom_point()
+plot_dat +
+  geom_smooth(color = "gray", se = FALSE)
+```
+
+---
+
+## Case study: ANOVA importance
+
+How do we typically do this in **linear regression**?
+
+```{r lm-2, echo = FALSE, message = FALSE, out.width = "90%", fig.align = "center"}
+r2_full <- 1 - mean((lm_fit$fitted.values - sim_tib$y) ^ 2) / var(sim_tib$y)
+plot_dat +
+  geom_smooth(color = "gray", se = FALSE) + 
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +
+  ggtitle("Using all variables")
+```
+
+---
+
+## Case study: ANOVA importance
+
+How do we typically do this in **linear regression**?
+
+```{r lm-3, echo = FALSE, message = FALSE, out.width = "90%", fig.align = "center"}
+plot_dat +
+  geom_smooth(color = "gray", se = FALSE) + 
+  geom_abline(slope = lm_fit$coefficients[2], intercept = lm_fit$coefficients[1], color = "blue") +
+  annotate(geom = "text", x = 2, y = 6, label = paste0("atop(R^2 == ", round(r2_full, 3), ")"), parse = TRUE, color = "red") +
+  ggtitle("Using all variables")
+```
+
 --
 
-* Fit a linear regression of $Y$ on $X_{-s}$ $\rightarrow \color{magenta}{\hat{\mu}_s(X)}$
---
+```{r lm-4, echo = FALSE, message = FALSE, out.width = "90%", fig.align = "center"}
+lm_fit_reduced <- lm(y ~ ., data = sim_tib %>% select(-X2))
+r2_red <- 1 - mean((lm_fit_reduced$fitted.values - sim_tib$y) ^ 2) / var(sim_tib$y)
+plot_dat +
+  geom_smooth(color = "gray", se = FALSE) + 
+  geom_abline(slope = lm_fit_reduced$coefficients[2], intercept = lm_fit_reduced$coefficients[1], color = "blue") +
+  annotate(geom = "text", x = 2, y = 6, label = paste0("atop(R^2 == ", round(r2_red, 3), ")"), parse = TRUE, color = "red") +
+  ggtitle("Excluding X2")
+```
 
-* .green[Compare the fitted values] $[\hat{\mu}(X_i), \hat{\mu}_s(X_i)]$
+---
 
---
 
-Many ways to compare fitted values, including:
-* ANOVA decomposition
-* Difference in $R^2$
-
---
+## Case study: ANOVA importance
 
 Can extend this to a .blue1[nonparametric] measure using .blue2[population quantities] 
 
----
-
-## Case study: ANOVA importance
-
-How should we make inference on population importance?
 --
 
-1. construct regression estimators (e.g., with machine learning)
+Can do .blue1[inference] on this parameter, even if we used .green[machine learning] 
 
---
-
-2. compute simple, initial estimator 
---
-  ...but this estimator has .red[asymptotic bias]
---
-
-3. use influence function-based debiasing [e.g., Pfanzagl (1982)] to obtain corrected estimator 
-
---
-
-**Key observation:** estimator from (3) arises from steps 1 and 2 with a different parameter of interest
-
-This implies .blue1[no need for debiasing]! .small[[Details in Williamson et al. (2020a)]]
+.small[[details in Williamson et al. (2020a)]]
 
 ---
 
-## Generalization to arbitrary measures
+## A unified framework
 
-ANOVA example suggests a natural generalization:
+Our proposed general framework for inference on *model-agnostic** variable importance:
 --
 
-1. Choose a relevant measure of .blue1[predictiveness] $V$ for the task at hand
+1. Choose a .blue2[scientifically relevant] measure of .blue1[predictiveness] $V$
 
 --
 
@@ -223,11 +262,17 @@ ANOVA example suggests a natural generalization:
 
 --
 
-2. Define variable importance as $$V( \text{best possible prediction function using all variables}) - $$ $$V(\text{best possible prediction function excluding the variables of interest})$$
+2. Define variable importance as 
+
+  $V($ .blue1[best possible] prediction function using .green[all variables] $) -$
+  
+  $V($ .blue1[best possible] prediction function .red[excluding the variables of interest] $)$
 
 --
 
 .blue1[Inference] possible even with machine learning! .small[ [Details in Williamson et al. (2020b)] ]
+
+Implemented in `R` package `vimp` (available on `CRAN`!)
 
 ---
 
@@ -270,11 +315,20 @@ Variable selection using population importance: my postdoctoral focus
 
 ---
 
-## Transition to EDI work
+## Working towards equity, diversity, and inclusion
 
-Placeholder text about how I want to make the academic space more welcoming, equitable, inclusive
+My personal goal: work towards EDI in biomedical research and practice
 
-How I've focused on outreach while at the Hutch
+--
+
+**Educational outreach:** [Hutch United Outreach Committee](https://www.fredhutch.org/en/research/education-training/hutch-united.html)
+
+**Mentoring:** [Cientifico Latino](https://www.cientificolatino.com/gsmi), [Pomona College alumni mentor](https://www.sagepost47.com/)
+
+**Research:**
+  * working with historically underserved communities
+  * working to reduce health disparities
+  * increasing access to high-quality preventive care
 
 ---
 
@@ -403,14 +457,16 @@ knitr::include_graphics(c(
 
 ## Closing thoughts
 
+.blue1[Inference] on .blue2[model-agnostic] variable importance, using .green[machine learning]
+
 .blue1[EDI work] can (and should) be .blue2[part of research]
 
 A .green[strong community partner] (e.g., SCC) is crucial for this work
 
 Many aspects needed for successful outreach: 
 * positions (requires scientific staff as sponsors)
-* administrative support (many thanks to Jill Anderson, Tess Hurley, and Scientific Computing)
-* long-term commitment (many thanks to Stephanie Shadbolt and Marilyn Saavedra-Leyva)
+* administrative support (many thanks to **Jill Anderson**, **Tess Hurley**, and **Scientific Computing**)
+* long-term commitment (many thanks to **Stephanie Shadbolt** and **Marilyn Saavedra-Leyva**)
 
 .center[
 `r icon::fa('github')` https://github.com/bdwilliamson | 

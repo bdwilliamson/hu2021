@@ -150,48 +150,39 @@ Many ways to compare fitted values, including:
 
 Can extend this to a .blue1[nonparametric] measure using .blue2[population quantities] 
 
----
-
-## Case study: ANOVA importance
-
-How should we make inference on population importance?
 --
 
-1. construct regression estimators (e.g., with machine learning)
---
+Can do .blue1[inference] on this parameter, even if we used .green[machine learning] 
 
-2. compute simple, initial estimator 
---
-  ...but this estimator has .red[asymptotic bias]
---
-
-3. use influence function-based debiasing [e.g., Pfanzagl (1982)] to obtain corrected estimator 
-
---
-
-**Key observation:** estimator from (3) arises from steps 1 and 2 with a different parameter of interest
-
-This implies .blue1[no need for debiasing]! .small[[Details in Williamson et al. (2020a)]]
+.small[[details in Williamson et al. (2020a)]]
 
 ---
 
-## Generalization to arbitrary measures
+## A unified framework
 
-ANOVA example suggests a natural generalization:
+Our proposed general framework for inference on *model-agnostic** variable importance:
 --
 
-1. Choose a relevant measure of .blue1[predictiveness] `\(V\)` for the task at hand
+1. Choose a .blue2[scientifically relevant] measure of .blue1[predictiveness] `\(V\)`
 
 --
+
+  * Large `\(V\)` = good predictions
   * e.g., classification accuracy, AUC, `\(R^2\)`
 
 --
 
-2. Define variable importance as $$V( \text{best possible prediction function using all variables}) - $$ `$$V(\text{best possible prediction function excluding the variables of interest})$$`
+2. Define variable importance as 
+
+  `\(V(\)` .blue1[best possible] prediction function using .green[all variables] `\() -\)`
+  
+  `\(V(\)` .blue1[best possible] prediction function .red[excluding the variables of interest] `\()\)`
 
 --
 
-Inference possible even with machine learning! .small[ [Details in Williamson et al. (2020b)] ]
+.blue1[Inference] possible even with machine learning! .small[ [Details in Williamson et al. (2020b)] ]
+
+Implemented in `R` package `vimp` (available on `CRAN`!)
 
 ---
 
@@ -224,11 +215,20 @@ Variable selection using population importance: my postdoctoral focus
 
 ---
 
-## Transition to EDI work
+## Working towards equity, diversity, and inclusion
 
-Placeholder text about how I want to make the academic space more welcoming, equitable, inclusive
+My personal goal: work towards EDI in biomedical research and practice
 
-How I've focused on outreach while at the Hutch
+--
+
+**Educational outreach:** [Hutch United Outreach Committee](https://www.fredhutch.org/en/research/education-training/hutch-united.html)
+
+**Mentoring:** [Cientifico Latino](https://www.cientificolatino.com/gsmi), [Pomona College alumni mentor](https://www.sagepost47.com/)
+
+**Research:**
+  * working with historically underserved communities
+  * working to reduce health disparities
+  * increasing access to high-quality preventive care
 
 ---
 
@@ -301,14 +301,16 @@ How I've focused on outreach while at the Hutch
 
 ## Closing thoughts
 
+.blue1[Inference] on .blue2[model-agnostic] variable importance, using .green[machine learning]
+
 .blue1[EDI work] can (and should) be .blue2[part of research]
 
 A .green[strong community partner] (e.g., SCC) is crucial for this work
 
 Many aspects needed for successful outreach: 
 * positions (requires scientific staff as sponsors)
-* administrative support (many thanks to Jill Anderson, Tess Hurley, and Scientific Computing)
-* long-term commitment (many thanks to Stephanie Shadbolt and Marilyn Saavedra-Leyva)
+* administrative support (many thanks to **Jill Anderson**, **Tess Hurley**, and **Scientific Computing**)
+* long-term commitment (many thanks to **Stephanie Shadbolt** and **Marilyn Saavedra-Leyva**)
 
 .center[
 <i class="fab  fa-github "></i> https://github.com/bdwilliamson | 

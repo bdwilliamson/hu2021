@@ -298,7 +298,7 @@ knitr::include_graphics(c(
 
 ```{r internship-timeline, echo = FALSE, fig.show = "hold", out.width = "70%", fig.align = "center"}
 knitr::include_graphics(c(
-    "img/internship_timeline1.png"
+    "img/internship_timeline1.PNG"
   ))
 ```
 
@@ -314,7 +314,7 @@ knitr::include_graphics(c(
 
 ```{r internship-timeline-2, echo = FALSE, fig.show = "hold", out.width = "70%", fig.align = "center"}
 knitr::include_graphics(c(
-    "img/internship_timeline2.png"
+    "img/internship_timeline2.PNG"
   ))
 ```
 
@@ -330,7 +330,7 @@ knitr::include_graphics(c(
 
 ```{r internship-timeline-3, echo = FALSE, fig.show = "hold", out.width = "70%", fig.align = "center"}
 knitr::include_graphics(c(
-    "img/internship_timeline3.png"
+    "img/internship_timeline3.PNG"
   ))
 ```
 
@@ -346,7 +346,7 @@ knitr::include_graphics(c(
 
 ```{r internship-timeline-4, echo = FALSE, fig.show = "hold", out.width = "70%", fig.align = "center"}
 knitr::include_graphics(c(
-    "img/internship_timeline4.png"
+    "img/internship_timeline4.PNG"
   ))
 ```
 
@@ -362,7 +362,7 @@ knitr::include_graphics(c(
 
 ```{r internship-timeline-5, echo = FALSE, fig.show = "hold", out.width = "70%", fig.align = "center"}
 knitr::include_graphics(c(
-    "img/internship_timeline5.png"
+    "img/internship_timeline5.PNG"
   ))
 ```
 
@@ -378,7 +378,7 @@ knitr::include_graphics(c(
 
 ```{r internship-timeline-6, echo = FALSE, fig.show = "hold", out.width = "70%", fig.align = "center"}
 knitr::include_graphics(c(
-    "img/internship_timeline6.png"
+    "img/internship_timeline6.PNG"
   ))
 ```
 
@@ -388,7 +388,7 @@ knitr::include_graphics(c(
 
 ```{r people-4, echo = FALSE, fig.show = "hold", out.width = "55%", fig.align = "center"}
 knitr::include_graphics(c(
-    "img/people4.png"
+    "img/people4.PNG"
   ))
 ```
 

@@ -384,7 +384,7 @@ knitr::include_graphics(c(
 
 ---
 
-## Internship projects
+## Internship projects at Fred Hutch
 
 ```{r people-4, echo = FALSE, fig.show = "hold", out.width = "55%", fig.align = "center"}
 knitr::include_graphics(c(

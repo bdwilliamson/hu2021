@@ -143,100 +143,43 @@ Example uses of .blue2[intrinsic] variable importance:
 
 ## Case study: ANOVA importance
 
-```{r vim-1, echo = FALSE, out.width = "90%", fig.align = "center"}
-knitr::include_graphics("img/vim1.png")
-```
-
----
-
-## Case study: ANOVA importance
-
-```{r vim-2, echo = FALSE, out.width = "90%", fig.align = "center"}
-knitr::include_graphics("img/vim2.png")
-```
-
----
-
-## Case study: ANOVA importance
-
-```{r vim-3, echo = FALSE, out.width = "90%", fig.align = "center"}
-knitr::include_graphics("img/vim3.png")
-```
-
----
-
-## Case study: ANOVA importance
-
-```{r vim-4, echo = FALSE, out.width = "90%", fig.align = "center"}
-knitr::include_graphics("img/vim4.png")
-```
-
----
-
-## Case study: ANOVA importance
-
-How do we typically do this in **linear regression**?
-
-```{r lm-1, echo = FALSE, message = FALSE, out.width = "90%", fig.align = "center"}
-set.seed(1234)
-sim_x <- MASS::mvrnorm(n = 500, mu = rep(0, 10), Sigma = diag(1, nrow = 10, ncol = 10))
-sim_y <- rnorm(500, 1 + sin((pi / 2) * sim_x[, 1]) + cos((pi / 2) * sim_x[, 2]) + 0.01 * (1 - sim_x[, 3])^(-1), 1)
-library("tidyverse")
-sim_tib <- tibble(y = sim_y, data.frame(sim_x))
-lm_fit <- lm(y ~ ., data = sim_tib)
-library("cowplot")
-theme_set(theme_cowplot())
-plot_dat <- sim_tib %>% 
-  ggplot(aes(x = X1, y = y)) +
-  geom_point()
-plot_dat +
-  geom_smooth(color = "gray", se = FALSE)
-```
-
----
-
-## Case study: ANOVA importance
-
-How do we typically do this in **linear regression**?
-
-```{r lm-2, echo = FALSE, message = FALSE, out.width = "90%", fig.align = "center"}
-r2_full <- 1 - mean((lm_fit$fitted.values - sim_tib$y) ^ 2) / var(sim_tib$y)
-plot_dat +
-  geom_smooth(color = "gray", se = FALSE) + 
-  geom_smooth(method = "lm", se = FALSE, color = "blue") +
-  ggtitle("Using all variables")
-```
-
----
-
-## Case study: ANOVA importance
-
-How do we typically do this in **linear regression**?
-
-```{r lm-3, echo = FALSE, message = FALSE, out.width = "90%", fig.align = "center"}
-plot_dat +
-  geom_smooth(color = "gray", se = FALSE) + 
-  geom_abline(slope = lm_fit$coefficients[2], intercept = lm_fit$coefficients[1], color = "blue") +
-  annotate(geom = "text", x = 2, y = 6, label = paste0("atop(R^2 == ", round(r2_full, 3), ")"), parse = TRUE, color = "red") +
-  ggtitle("Using all variables")
-```
+Data unit $(X, Y)$ with:
+* outcome $Y$ 
+* covariate $X := (X_1, X_2, \ldots, X_p)$
 
 --
 
-```{r lm-4, echo = FALSE, message = FALSE, out.width = "90%", fig.align = "center"}
-lm_fit_reduced <- lm(y ~ ., data = sim_tib %>% select(-X2))
-r2_red <- 1 - mean((lm_fit_reduced$fitted.values - sim_tib$y) ^ 2) / var(sim_tib$y)
-plot_dat +
-  geom_smooth(color = "gray", se = FALSE) + 
-  geom_abline(slope = lm_fit_reduced$coefficients[2], intercept = lm_fit_reduced$coefficients[1], color = "blue") +
-  annotate(geom = "text", x = 2, y = 6, label = paste0("atop(R^2 == ", round(r2_red, 3), ")"), parse = TRUE, color = "red") +
-  ggtitle("Excluding X2")
-```
+**Goals:** 
+* .green[estimate]
+* .blue1[and do inference on]
+
+the importance of $(X_j: j \in s)$ in predicting $Y$
+
+--
+
+How do we typically do this in **linear regression**?
 
 ---
 
-
 ## Case study: ANOVA importance
+
+How do we typically do this in **linear regression**?
+
+* Fit a linear regression of $Y$ on $X$ $\rightarrow \color{magenta}{\hat{\mu}(X)}$
+--
+
+* Fit a linear regression of $Y$ on $X_{-s}$ $\rightarrow \color{magenta}{\hat{\mu}_s(X)}$
+--
+
+* .green[Compare the fitted values] $[\hat{\mu}(X_i), \hat{\mu}_s(X_i)]$
+
+--
+
+Many ways to compare fitted values, including:
+* ANOVA decomposition
+* Difference in $R^2$
+
+--
 
 Can extend this to a .blue1[nonparametric] measure using .blue2[population quantities] 
 
